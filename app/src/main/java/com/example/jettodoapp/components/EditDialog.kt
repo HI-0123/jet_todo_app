@@ -13,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -22,14 +23,22 @@ import com.example.jettodoapp.MainViewModel
 fun EditDialog(
     viewModel: MainViewModel = hiltViewModel(),
 ) {
+    DisposableEffect(Unit){
+        onDispose {
+            viewModel.reset()
+        }
+    }
+
     AlertDialog(
         modifier = Modifier.fillMaxWidth(),
         onDismissRequest = { viewModel.isShowDialog = false },
         title = {
-            Text(text = "タスク新規作成")
+            Text(
+                text = if (!viewModel.isEditing) "タスク新規作成" else "タスク編集"
+            )
         },
         text = {
-            Column() {
+            Column {
                 buildTextField(
                     title = "タイトル",
                     value = viewModel.title,
@@ -56,7 +65,11 @@ fun EditDialog(
                 Spacer(modifier = Modifier.width(8.dp))
                 buildButton(
                     title = "OK",
-                    onClick = { viewModel.isShowDialog = false },
+                    onClick = {
+                        viewModel.isShowDialog = false
+                        if (!viewModel.isEditing)
+                            viewModel.createTask() else viewModel.updateTask()
+                    },
                 )
 
             }
@@ -71,7 +84,7 @@ private fun buildTextField(
     value: String,
     onValueChange: (String) -> Unit,
 ) {
-    Column() {
+    Column {
         Text(text = title)
         TextField(
             value = value,

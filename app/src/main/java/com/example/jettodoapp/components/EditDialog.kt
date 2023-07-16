@@ -23,6 +23,7 @@ import com.example.jettodoapp.MainViewModel
 fun EditDialog(
     viewModel: MainViewModel = hiltViewModel(),
 ) {
+    // View破棄時の処理
     DisposableEffect(Unit){
         onDispose {
             viewModel.reset()
